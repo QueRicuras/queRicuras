@@ -468,7 +468,7 @@ let menu = [], ventas = [], historial = [], fiados = [];
 let baseActual = 0, comprasHoy = [], comprasTotal = 0;
 let qtys = {}, pago = 'efectivo', currentRole = '', selectedRolEl = null;
 let nextId = 100;
-let PINS = {Abuela:'1234', Empleado:'5678'};
+let PINS = {Abuela:'3579', Empleado:'5678'};
 
 // ─── PERSISTENCIA ───────────────────────────────────
 function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
@@ -498,7 +498,7 @@ function loadAll(){
   const comp = load(K.compras, {total:0,list:[]});
   comprasTotal = comp.total; comprasHoy = comp.list;
   fiados = load(K.fiados, []);
-  PINS = load(K.pins, {Abuela:'1234', Empleado:'5678'});
+  PINS = load(K.pins, {Abuela:'3579', Empleado:'5678'});
   nextId = menu.reduce((mx,p)=>Math.max(mx,p.id),99)+1;
 }
 
