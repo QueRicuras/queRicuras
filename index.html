@@ -460,7 +460,10 @@ async function loadAll(){
     if(cajaDoc){ baseActual=cajaDoc.base||0; comprasTotal=cajaDoc.comprasTotal||0; comprasHoy=cajaDoc.comprasHoy||[]; }
 
     const pinsDoc = await fbGet('config/pins');
-    if(pinsDoc) PINS = pinsDoc;
+    if(pinsDoc && pinsDoc.Abuela) {
+      PINS.Abuela = pinsDoc.Abuela;
+      PINS.Empleado = pinsDoc.Empleado || '5678';
+    }
 
     setSyncDot('ok');
     return true;
