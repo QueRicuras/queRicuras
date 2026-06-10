@@ -425,10 +425,10 @@ async function fbUpdate(docPath,data){ await updateDoc(doc(db,docPath),{...data,
 // ─── CARGAR DATOS ────────────────────────────────────
 async function loadAll(){
   try {
-    document.getElementById('loading-msg').textContent='Cargando menú...';
+    document.getElementById('loading-msg').textContent='1. Cargando menú...';
     const menuSnap = await getDocs(collection(db,'menu'));
+    document.getElementById('loading-msg').textContent='2. Menú OK - cargando ventas...';
     if(menuSnap.empty){
-      // Primera vez: cargar menú por defecto
       const defaults=[
         {id:1,nombre:'Sanduche cubano',desc:'Pan, lechuga, tomate, carne desmechada, pollo desmechado, queso, jamón y salsas de la casa',precio:15000,activo:true},
         {id:2,nombre:'Punta cubana',desc:'Pan, lechuga, tomate, carne desmechada, pollo desmechado, queso, jamón y salsas de la casa',precio:12000,activo:true},
@@ -443,30 +443,37 @@ async function loadAll(){
     }
     nextId = menu.reduce((mx,p)=>Math.max(mx,p.id),99)+1;
 
-    document.getElementById('loading-msg').textContent='Cargando ventas...';
+    document.getElementById('loading-msg').textContent='3. Cargando ventas...';
     const ventasSnap = await getDocs(collection(db,'ventas'));
+    document.getElementById('loading-msg').textContent='4. Ventas OK - cargando historial...';
     ventas = ventasSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
     ventas.sort((a,b)=>a.hora>b.hora?1:-1);
 
-    document.getElementById('loading-msg').textContent='Cargando historial...';
+    document.getElementById('loading-msg').textContent='5. Cargando historial...';
     const histSnap = await getDocs(collection(db,'historial'));
+    document.getElementById('loading-msg').textContent='6. Historial OK - cargando fiados...';
     historial = histSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
     historial.sort((a,b)=>b.fecha.localeCompare(a.fecha));
 
+    document.getElementById('loading-msg').textContent='7. Cargando fiados...';
     const fiadosSnap = await getDocs(collection(db,'fiados'));
+    document.getElementById('loading-msg').textContent='8. Fiados OK - cargando caja...';
     fiados = fiadosSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
 
+    document.getElementById('loading-msg').textContent='9. Cargando caja...';
     const cajaDoc = await fbGet('config/caja');
+    document.getElementById('loading-msg').textContent='10. Caja OK - cargando PINs...';
     if(cajaDoc){ baseActual=cajaDoc.base||0; comprasTotal=cajaDoc.comprasTotal||0; comprasHoy=cajaDoc.comprasHoy||[]; }
 
+    document.getElementById('loading-msg').textContent='11. Cargando PINs...';
     const pinsDoc = await fbGet('config/pins');
+    document.getElementById('loading-msg').textContent='12. PINs OK: ' + (pinsDoc ? pinsDoc.Abuela : 'no encontrado');
     if(pinsDoc && pinsDoc.Abuela) {
       PINS.Abuela = pinsDoc.Abuela;
       PINS.Empleado = pinsDoc.Empleado || '5678';
     }
-    // DEBUG temporal — muestra qué PIN cargó
-    document.getElementById('loading-msg').textContent = 'PIN cargado: ' + PINS.Abuela;
 
+    document.getElementById('loading-msg').textContent='✅ Todo listo';
     setSyncDot('ok');
     return true;
   } catch(e){
