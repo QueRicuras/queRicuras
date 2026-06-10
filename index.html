@@ -471,6 +471,8 @@ async function loadAll(){
     return true;
   } catch(e){
     console.error(e);
+    document.getElementById('loading-msg').textContent='Firebase error: ' + e.message;
+    document.getElementById('loading-msg').style.color='red';
     setSyncDot('err');
     return false;
   }
@@ -870,11 +872,25 @@ document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click
 // ─── INICIO ──────────────────────────────────────────
 (async()=>{
   document.getElementById('loading-view').style.display='flex';
-  const ok = await loadAll();
-  document.getElementById('loading-view').style.display='none';
-  document.getElementById('login-view').style.display='flex';
-  if(!ok) notif('⚠️ Sin internet — datos limitados');
-})();
+  document.getElementById('loading-msg').textContent='Conectando con Firebase...';
+  try {
+    const ok = await loadAll();
+    document.getElementById('loading-view').style.display='none';
+    document.getElementById('login-view').style.display='flex';
+    if(!ok){
+      notif('⚠️ Sin internet — usando PIN por defecto');
+    }
+  } catch(e) {
+    // Mostrar error real en pantalla
+    document.getElementById('loading-msg').textContent='ERROR: ' + e.message;
+    document.getElementById('loading-msg').style.color='red';
+    document.getElementById('loading-msg').style.fontSize='11px';
+    setTimeout(()=>{
+      document.getElementById('loading-view').style.display='none';
+      document.getElementById('login-view').style.display='flex';
+    }, 4000);
+  }
+})();})();
 </script>
 </body>
 </html>
