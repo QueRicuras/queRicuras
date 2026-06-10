@@ -464,6 +464,8 @@ async function loadAll(){
       PINS.Abuela = pinsDoc.Abuela;
       PINS.Empleado = pinsDoc.Empleado || '5678';
     }
+    // DEBUG temporal — muestra qué PIN cargó
+    document.getElementById('loading-msg').textContent = 'PIN cargado: ' + PINS.Abuela;
 
     setSyncDot('ok');
     return true;
