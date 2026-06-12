@@ -200,6 +200,11 @@ input:focus,select:focus{border-color:var(--rojo);}
   <div id="tab-pedidos" class="screen active">
     <div class="card">
       <div class="section-title">Nuevo pedido</div>
+      <!-- Búsqueda en pedidos -->
+      <div style="position:relative;margin-bottom:10px;">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;">🔍</span>
+        <input type="text" id="pedido-search" placeholder="Buscar producto..." oninput="filtrarPedidos()" style="padding-left:36px;"/>
+      </div>
       <div id="order-items"></div>
       <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
         <div class="total-row grand"><span>Total</span><span id="order-total" style="color:var(--rojo)">$0</span></div>
@@ -257,11 +262,17 @@ input:focus,select:focus{border-color:var(--rojo);}
 
   <!-- MENÚ -->
   <div id="tab-menu" class="screen">
-    <button class="btn primary" id="btn-agregar-producto" onclick="openModal('modal-producto')">+ Agregar producto</button>
-    <div class="card">
-      <div class="section-title" id="menu-hint">Productos</div>
-      <div id="menu-list"></div>
+    <!-- Solo admin -->
+    <div id="menu-admin-btns" style="display:none;gap:8px;flex-direction:column;">
+      <button class="btn primary" onclick="openModal('modal-seccion')">📂 Nueva sección</button>
+      <button class="btn outline" id="btn-agregar-producto" onclick="openModal('modal-producto')">+ Agregar producto</button>
     </div>
+    <!-- Búsqueda -->
+    <div style="position:relative;">
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;">🔍</span>
+      <input type="text" id="menu-search" placeholder="Buscar producto..." oninput="filtrarMenu()" style="padding-left:38px;"/>
+    </div>
+    <div id="menu-secciones"></div>
   </div>
 
   <!-- CAJA -->
@@ -306,6 +317,12 @@ input:focus,select:focus{border-color:var(--rojo);}
       <div class="stat-card"><div class="stat-label">Este mes</div><div class="stat-value amarillo" id="hist-mes">$0</div></div>
     </div>
     <div class="card">
+      <div class="section-title">Ventas últimos 7 días</div>
+      <div id="grafica-semana" style="display:flex;gap:6px;align-items:flex-end;padding:8px 0 4px;min-height:90px;">
+        <div class="empty-state" style="width:100%;">Sin datos aún</div>
+      </div>
+    </div>
+    <div class="card">
       <div class="section-title">Distribución por método de pago (hoy)</div>
       <div id="bar-wrap"><div class="empty-state">Sin ventas aún</div></div>
     </div>
@@ -348,9 +365,45 @@ input:focus,select:focus{border-color:var(--rojo);}
 </div>
 
 <!-- MODALES -->
+<!-- MODAL TICKET WHATSAPP -->
+<div class="modal-overlay" id="modal-ticket">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">🧾 Ticket del pedido</div>
+      <button class="close-btn" onclick="closeModal('modal-ticket')">✕</button>
+    </div>
+    <pre id="ticket-texto" style="font-size:13px;line-height:1.6;white-space:pre-wrap;background:var(--bg2);border-radius:var(--radius);padding:14px;font-family:inherit;color:var(--text);"></pre>
+    <button id="ticket-whatsapp-btn" class="btn" style="background:#25D366;border-color:#1DA851;color:#fff;font-weight:700;font-size:15px;">
+      📲 Compartir por WhatsApp
+    </button>
+    <button class="btn" onclick="closeModal('modal-ticket')">Cerrar sin compartir</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-seccion">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="seccion-modal-title">Nueva sección</div>
+      <button class="close-btn" onclick="closeModal('modal-seccion')">✕</button>
+    </div>
+    <input type="hidden" id="seccion-edit-id"/>
+    <div class="input-group">
+      <label>Nombre de la sección</label>
+      <input type="text" id="seccion-nombre" placeholder="Ej: Perros calientes, Bebidas..."/>
+    </div>
+    <div class="input-group">
+      <label>Emoji (opcional)</label>
+      <input type="text" id="seccion-emoji" placeholder="Ej: 🌭 🍔 🥤" maxlength="4"/>
+    </div>
+    <button class="btn primary" onclick="guardarSeccion()">💾 Guardar sección</button>
+    <button class="btn danger" id="btn-eliminar-seccion" style="display:none;" onclick="eliminarSeccion()">🗑 Eliminar sección</button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-producto">
   <div class="modal-box">
     <div class="modal-header"><div class="modal-title">Agregar producto</div><button class="close-btn" onclick="closeModal('modal-producto')">✕</button></div>
+    <div class="input-group"><label>Sección</label>
+      <select id="prod-seccion"><option value="">Sin sección</option></select>
+    </div>
     <div class="input-group"><label>Nombre</label><input type="text" placeholder="Ej: Hamburguesa especial" id="prod-nombre"/></div>
     <div class="input-group"><label>Ingredientes / descripción</label><input type="text" placeholder="Ej: Pan, carne, queso, salsas" id="prod-desc"/></div>
     <div class="input-group"><label>Precio ($)</label><input type="number" placeholder="Ej: 15000" id="prod-precio"/></div>
@@ -361,6 +414,9 @@ input:focus,select:focus{border-color:var(--rojo);}
   <div class="modal-box">
     <div class="modal-header"><div class="modal-title">Editar producto</div><button class="close-btn" onclick="closeModal('modal-editar')">✕</button></div>
     <input type="hidden" id="edit-id"/>
+    <div class="input-group"><label>Sección</label>
+      <select id="edit-seccion"><option value="">Sin sección</option></select>
+    </div>
     <div class="input-group"><label>Nombre</label><input type="text" id="edit-nombre"/></div>
     <div class="input-group"><label>Ingredientes / descripción</label><input type="text" id="edit-desc"/></div>
     <div class="input-group"><label>Precio ($)</label><input type="number" id="edit-precio"/></div>
@@ -389,10 +445,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ─── ESTADO ─────────────────────────────────────────
-let menu = [], ventas = [], historial = [], fiados = [];
+let menu = [], ventas = [], historial = [], fiados = [], secciones = [];
 let baseActual = 0, comprasHoy = [], comprasTotal = 0;
 let qtys = {}, pago = 'efectivo', currentRole = '';
-let nextId = 100;
+let nextId = 100, nextSeccionId = 10;
 let PINS = {Abuela:'1234', Empleado:'5678'};
 let online = true;
 
@@ -480,6 +536,12 @@ async function loadAll(){
       PINS.Abuela = pinsDoc.Abuela;
       PINS.Empleado = pinsDoc.Empleado || '5678';
     }
+
+    document.getElementById('loading-msg').textContent='13. Cargando secciones...';
+    const seccionesSnap = await withTimeout(getDocs(collection(db,'secciones')));
+    secciones = seccionesSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
+    secciones.sort((a,b)=>a.orden-b.orden);
+    nextSeccionId = secciones.reduce((mx,s)=>Math.max(mx,s.id),9)+1;
 
     document.getElementById('loading-msg').textContent='✅ Todo listo';
     setSyncDot('ok');
@@ -622,8 +684,39 @@ window.registrarPedido = async function(){
     pago='efectivo';
     notif('✅ Pedido registrado — '+fmt(total));
     setSyncDot('ok');
+    // Mostrar modal de ticket
+    mostrarTicket({items, total, pago: venta.pago, nombre: nombreFiado, hora: venta.hora, fecha: venta.fecha});
   } catch(e){ notif('❌ Error al guardar. Sin internet?'); setSyncDot('err'); }
 };
+
+// ─── TICKET WHATSAPP ─────────────────────────────────
+function mostrarTicket({items, total, pago, nombre, hora, fecha}){
+  const metodoPago = pago==='efectivo'?'💵 Efectivo':pago==='nequi'?'📱 Nequi':'📝 Fiado';
+  const lineas = items.map(i=>{
+    const p = menu.find(x=>x.nombre===i.split(' x')[0]);
+    const qty = parseInt(i.split(' x')[1])||1;
+    return p ? `  • ${p.nombre} x${qty} — ${fmt(p.precio*qty)}` : `  • ${i}`;
+  });
+  const ticket =
+    `🔥 *QUE RICURAS*\n` +
+    `📍 CRA 26d #23-11 · La Lomita\n` +
+    `─────────────────────\n` +
+    `📋 *Pedido*\n` +
+    lineas.join('\n') + '\n' +
+    `─────────────────────\n` +
+    `💰 *Total: ${fmt(total)}*\n` +
+    `${metodoPago}${nombre?' — '+nombre:''}\n` +
+    `🕐 ${hora} · ${fecha}\n` +
+    `─────────────────────\n` +
+    `¡A que te chupas los dedos! 😋`;
+
+  document.getElementById('ticket-texto').textContent = ticket;
+  document.getElementById('ticket-whatsapp-btn').onclick = ()=>{
+    const msg = encodeURIComponent(ticket);
+    window.open('https://wa.me/?text='+msg,'_blank');
+  };
+  openModal('modal-ticket');
+}
 
 // ─── VENTAS ──────────────────────────────────────────
 function updateVentasUI(){
@@ -694,22 +787,131 @@ async function cobrarFiado(fbId,nombre,total){
   } catch(e){ notif('❌ Error al actualizar'); setSyncDot('err'); }
 }
 
-// ─── MENÚ ────────────────────────────────────────────
-function renderMenuTab(){
-  const esAdmin=currentRole==='Abuela';
-  document.getElementById('btn-agregar-producto').style.display=esAdmin?'flex':'none';
-  document.getElementById('menu-hint').textContent=esAdmin?'Productos — toca ✏️ para editar':'Menú disponible (solo lectura)';
-  const ml=document.getElementById('menu-list'); ml.innerHTML='';
-  menu.forEach(p=>{
-    const d=document.createElement('div'); d.className='menu-item';
-    const acciones=esAdmin
-      ?'<div class="menu-item-actions"><button class="edit-btn" data-id="'+p.id+'">✏️ Editar</button><span class="badge '+(p.activo?'activo':'inactivo')+'" data-id="'+p.id+'">'+(p.activo?'Activo':'Inactivo')+'</span></div>'
-      :'<div class="menu-item-actions"><span class="badge '+(p.activo?'activo':'inactivo')+'" style="cursor:default;">'+(p.activo?'Disponible':'No disponible')+'</span></div>';
-    d.innerHTML='<div style="flex:1;min-width:0;"><div class="menu-item-name">'+p.nombre+'</div><div class="menu-item-desc">'+p.desc+'</div><div class="menu-item-price">'+fmt(p.precio)+'</div>'+acciones+'</div>';
-    ml.appendChild(d);
+// ─── MENÚ CON SECCIONES ──────────────────────────────
+function renderMenuTab(filtro=''){
+  const esAdmin = currentRole==='Abuela';
+  const adminBtns = document.getElementById('menu-admin-btns');
+  adminBtns.style.display = esAdmin ? 'flex' : 'none';
+
+  // Actualizar select de sección en modales
+  ['prod-seccion','edit-seccion'].forEach(sid=>{
+    const sel=document.getElementById(sid); if(!sel) return;
+    const val=sel.value;
+    sel.innerHTML='<option value="">Sin sección</option>';
+    secciones.forEach(s=>{ const o=document.createElement('option'); o.value=s.id; o.textContent=(s.emoji?s.emoji+' ':'')+s.nombre; sel.appendChild(o); });
+    sel.value=val;
   });
-  ml.querySelectorAll('.edit-btn').forEach(btn=>btn.addEventListener('click',()=>abrirEditar(parseInt(btn.dataset.id))));
-  ml.querySelectorAll('.badge[data-id]').forEach(badge=>badge.addEventListener('click',()=>toggleProducto(parseInt(badge.dataset.id))));
+
+  const container = document.getElementById('menu-secciones');
+  container.innerHTML='';
+
+  const texto = filtro.toLowerCase().trim();
+
+  // Productos sin sección
+  const sinSeccion = menu.filter(p=> !p.seccionId && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
+  // Secciones
+  const conSeccion = secciones.map(s=>({
+    seccion: s,
+    productos: menu.filter(p=> p.seccionId==s.id && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)))
+  })).filter(g=> g.productos.length>0 || (!texto && esAdmin));
+
+  // Renderizar cada grupo
+  const grupos = [];
+  conSeccion.forEach(g=> grupos.push({titulo:(g.seccion.emoji?g.seccion.emoji+' ':'')+g.seccion.nombre, seccionId:g.seccion.id, fbId:g.seccion._fbId, productos:g.productos}));
+  if(sinSeccion.length>0 || (!texto && !secciones.length)) grupos.push({titulo:'📋 General', seccionId:null, fbId:null, productos:sinSeccion});
+
+  if(!grupos.length){
+    container.innerHTML='<div class="card"><div class="empty-state">Sin resultados</div></div>';
+    return;
+  }
+
+  grupos.forEach(g=>{
+    const card = document.createElement('div');
+    card.className='card';
+    let header = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+      +'<div style="font-size:14px;font-weight:700;color:var(--rojo);">'+g.titulo+'</div>';
+    if(esAdmin && g.seccionId){
+      header += '<button class="edit-btn" style="margin-top:0;" data-seccion-id="'+g.seccionId+'">✏️ Sección</button>';
+    }
+    header += '</div>';
+
+    let items = '';
+    if(!g.productos.length){
+      items = '<div class="empty-state" style="padding:8px 0;">Sin productos en esta sección</div>';
+    } else {
+      g.productos.forEach(p=>{
+        const acciones = esAdmin
+          ? '<div class="menu-item-actions"><button class="edit-btn" data-id="'+p.id+'">✏️ Editar</button><span class="badge '+(p.activo?'activo':'inactivo')+'" data-id="'+p.id+'">'+(p.activo?'Activo':'Inactivo')+'</span></div>'
+          : '<div class="menu-item-actions"><span class="badge '+(p.activo?'activo':'inactivo')+'" style="cursor:default;">'+(p.activo?'Disponible':'No disponible')+'</span></div>';
+        items += '<div class="menu-item"><div style="flex:1;min-width:0;"><div class="menu-item-name">'+p.nombre+'</div><div class="menu-item-desc">'+p.desc+'</div><div class="menu-item-price">'+fmt(p.precio)+'</div>'+acciones+'</div></div>';
+      });
+    }
+
+    card.innerHTML = header + items;
+    container.appendChild(card);
+  });
+
+  // Eventos
+  container.querySelectorAll('.edit-btn[data-id]').forEach(btn=>btn.addEventListener('click',()=>abrirEditar(parseInt(btn.dataset.id))));
+  container.querySelectorAll('.badge[data-id]').forEach(badge=>badge.addEventListener('click',()=>toggleProducto(parseInt(badge.dataset.id))));
+  container.querySelectorAll('.edit-btn[data-seccion-id]').forEach(btn=>btn.addEventListener('click',()=>abrirEditarSeccion(parseInt(btn.dataset.seccionId))));
+}
+
+function filtrarMenu(){
+  const q = document.getElementById('menu-search').value;
+  renderMenuTab(q);
+}
+function filtrarPedidos(){
+  const q = document.getElementById('pedido-search').value.toLowerCase().trim();
+  renderOrderItems(q);
+}
+
+// ─── SECCIONES ───────────────────────────────────────
+window.guardarSeccion = async function(){
+  const nombre = document.getElementById('seccion-nombre').value.trim();
+  const emoji  = document.getElementById('seccion-emoji').value.trim();
+  const editId = document.getElementById('seccion-edit-id').value;
+  if(!nombre){alert('Escribe un nombre para la sección');return;}
+  try {
+    if(editId){
+      const s = secciones.find(x=>x.id==editId);
+      if(s && s._fbId) await updateDoc(doc(db,'secciones',s._fbId),{nombre,emoji,_secret:APP_SECRET});
+      notif('💾 Sección actualizada');
+    } else {
+      const id = nextSeccionId++;
+      await addDoc(collection(db,'secciones'),{id,nombre,emoji,orden:id,_secret:APP_SECRET});
+      notif('📂 Sección creada');
+    }
+    closeModal('modal-seccion');
+    document.getElementById('seccion-nombre').value='';
+    document.getElementById('seccion-emoji').value='';
+    document.getElementById('seccion-edit-id').value='';
+  } catch(e){ notif('❌ Error al guardar sección'); }
+};
+
+window.eliminarSeccion = async function(){
+  const editId = document.getElementById('seccion-edit-id').value;
+  const s = secciones.find(x=>x.id==editId);
+  if(!s) return;
+  if(!confirm('¿Eliminar la sección "'+s.nombre+'"? Los productos quedarán sin sección.')) return;
+  try {
+    await deleteDoc(doc(db,'secciones',s._fbId));
+    // Desasociar productos de esta sección
+    const prods = menu.filter(p=>p.seccionId==s.id);
+    for(const p of prods) if(p._fbId) await updateDoc(doc(db,'menu',p._fbId),{seccionId:null});
+    closeModal('modal-seccion');
+    notif('🗑 Sección eliminada');
+  } catch(e){ notif('❌ Error al eliminar sección'); }
+};
+
+function abrirEditarSeccion(id){
+  const s = secciones.find(x=>x.id===id); if(!s) return;
+  document.getElementById('seccion-edit-id').value=id;
+  document.getElementById('seccion-nombre').value=s.nombre;
+  document.getElementById('seccion-emoji').value=s.emoji||'';
+  document.getElementById('seccion-modal-title').textContent='Editar sección';
+  document.getElementById('btn-eliminar-seccion').style.display='block';
+  openModal('modal-seccion');
 }
 
 async function toggleProducto(id){
@@ -726,6 +928,7 @@ function abrirEditar(id){
   document.getElementById('edit-nombre').value=p.nombre;
   document.getElementById('edit-desc').value=p.desc;
   document.getElementById('edit-precio').value=p.precio;
+  document.getElementById('edit-seccion').value=p.seccionId||'';
   openModal('modal-editar');
 }
 window.guardarEdicion = async function(){
@@ -733,9 +936,10 @@ window.guardarEdicion = async function(){
   const nombre=document.getElementById('edit-nombre').value.trim();
   const desc=document.getElementById('edit-desc').value.trim();
   const precio=parseInt(document.getElementById('edit-precio').value)||0;
+  const seccionId=document.getElementById('edit-seccion').value?parseInt(document.getElementById('edit-seccion').value):null;
   if(!nombre||!precio){alert('Completa nombre y precio');return;}
   const p=menu.find(x=>x.id===id); if(!p||!p._fbId) return;
-  try { await updateDoc(doc(db,'menu',p._fbId),{nombre,desc:desc||p.desc,precio}); closeModal('modal-editar'); notif('💾 Producto actualizado'); }
+  try { await updateDoc(doc(db,'menu',p._fbId),{nombre,desc:desc||p.desc,precio,seccionId}); closeModal('modal-editar'); notif('💾 Producto actualizado'); }
   catch(e){ notif('❌ Error al guardar'); }
 };
 window.eliminarProducto = async function(){
@@ -750,13 +954,15 @@ window.agregarProducto = async function(){
   const nombre=document.getElementById('prod-nombre').value.trim();
   const desc=document.getElementById('prod-desc').value.trim();
   const precio=parseInt(document.getElementById('prod-precio').value)||0;
+  const seccionId=document.getElementById('prod-seccion').value?parseInt(document.getElementById('prod-seccion').value):null;
   if(!nombre||!precio){alert('Completa nombre y precio');return;}
   try {
-    await addDoc(collection(db,'menu'),{id:nextId++,nombre,desc:desc||'Sin descripción',precio,activo:true,_secret:APP_SECRET});
+    await addDoc(collection(db,'menu'),{id:nextId++,nombre,desc:desc||'Sin descripción',precio,activo:true,seccionId,_secret:APP_SECRET});
     closeModal('modal-producto');
     document.getElementById('prod-nombre').value='';
     document.getElementById('prod-desc').value='';
     document.getElementById('prod-precio').value='';
+    document.getElementById('prod-seccion').value='';
     notif('🍔 Producto agregado al menú');
   } catch(e){ notif('❌ Error al agregar'); }
 };
@@ -813,12 +1019,41 @@ async function updateHistorial(){
   const histSnap=await getDocs(collection(db,'historial'));
   historial=histSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
   historial.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+
   let semana=0,mes=0;
   const hoy=new Date();
   historial.forEach(d=>{ const fd=new Date(d.fecha); const diff=(hoy-fd)/(1000*60*60*24); if(diff<=7)semana+=d.total; if(fd.getMonth()===hoy.getMonth()&&fd.getFullYear()===hoy.getFullYear())mes+=d.total; });
   ventas.forEach(v=>{ semana+=v.total; mes+=v.total; });
   document.getElementById('hist-semana').textContent=fmt(semana);
   document.getElementById('hist-mes').textContent=fmt(mes);
+
+  // ── Gráfica semanal ──
+  const gw = document.getElementById('grafica-semana');
+  // Construir los últimos 7 días
+  const dias = [];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
+    const label=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()];
+    const histDia = historial.find(h=>h.fecha===key);
+    let total = histDia ? histDia.total : 0;
+    if(i===0) ventas.forEach(v=>total+=v.total); // hoy
+    dias.push({label, total, key});
+  }
+  const maxVal = Math.max(...dias.map(d=>d.total), 1);
+  gw.innerHTML = dias.map(d=>{
+    const pct = Math.round((d.total/maxVal)*100);
+    const esHoy = d.key === fechaHoy();
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+      <div style="font-size:11px;font-weight:600;color:${d.total>0?'var(--green)':'var(--muted)'};">${d.total>0?fmt(d.total).replace('$',''):'─'}</div>
+      <div style="width:100%;background:var(--bg2);border-radius:6px;height:80px;display:flex;align-items:flex-end;overflow:hidden;">
+        <div style="width:100%;height:${Math.max(pct,d.total>0?8:0)}%;background:${esHoy?'var(--rojo)':'var(--amarillo-dark)'};border-radius:6px;transition:height .4s;"></div>
+      </div>
+      <div style="font-size:11px;color:${esHoy?'var(--rojo)':'var(--muted)'};font-weight:${esHoy?'700':'400'};">${d.label}</div>
+    </div>`;
+  }).join('');
+
+  // ── Barras de método de pago ──
   let tot=0,ef=0,nq=0,fi=0;
   ventas.forEach(v=>{ tot+=v.total; if(v.pago==='efectivo')ef+=v.total; else if(v.pago==='nequi')nq+=v.total; else fi+=v.total; });
   const bw=document.getElementById('bar-wrap');
