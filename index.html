@@ -303,7 +303,8 @@ input:focus,select:focus{border-color:var(--rojo);}
     <div class="card">
       <div class="section-title">Resumen de caja</div>
       <div class="caja-row"><span>Base inicial</span><span id="res-base" style="font-weight:600;">$0</span></div>
-      <div class="caja-row"><span>Ventas del día</span><span id="res-ventas" style="color:var(--green);font-weight:600;">+$0</span></div>
+      <div class="caja-row"><span>Ventas cobradas</span><span id="res-ventas" style="color:var(--green);font-weight:600;">+$0</span></div>
+      <div class="caja-row"><span>Fiados (no en caja)</span><span id="res-fiado-caja" style="color:var(--rojo);font-weight:600;">$0</span></div>
       <div class="caja-row"><span>Compras de la noche</span><span id="res-compras" style="color:var(--rojo);font-weight:600;">−$0</span></div>
       <div class="caja-row" style="font-weight:700;font-size:16px;"><span>Caja final estimada</span><span id="res-final" style="color:var(--teal);">$0</span></div>
     </div>
@@ -623,20 +624,54 @@ window.showTab = function(tab,el){
 };
 
 // ─── PEDIDOS ─────────────────────────────────────────
-function initOrder(){ menu.filter(p=>p.activo).forEach(p=>{ if(!qtys[p.id]) qtys[p.id]=0; }); renderOrderItems(); }
+function initOrder(){ menu.filter(p=>p.activo).forEach(p=>{ if(qtys[p.id]===undefined) qtys[p.id]=0; }); renderOrderItems(); }
 
-function renderOrderItems(){
+function renderOrderItems(filtro=''){
   const c=document.getElementById('order-items'); c.innerHTML='';
-  menu.filter(p=>p.activo).forEach(p=>{
-    const d=document.createElement('div'); d.className='order-item';
-    d.innerHTML='<div style="flex:1;min-width:0;"><div class="order-item-name">'+p.nombre+'</div><div class="order-item-desc">'+p.desc+'</div><div class="order-item-price">'+fmt(p.precio)+'</div></div>'
-      +'<div class="qty-control"><button class="qty-btn" data-id="'+p.id+'" data-delta="-1">−</button><span class="qty-num" id="qty-'+p.id+'">'+(qtys[p.id]||0)+'</span><button class="qty-btn" data-id="'+p.id+'" data-delta="1">+</button></div>';
-    c.appendChild(d);
+  const texto = filtro.toLowerCase().trim();
+
+  // Agrupar productos activos por sección
+  const grupos = [];
+
+  // Primero secciones con sus productos
+  secciones.forEach(s=>{
+    const prods = menu.filter(p=>p.activo && p.seccionId==s.id && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
+    if(prods.length) grupos.push({titulo:(s.emoji?s.emoji+' ':'')+s.nombre, productos:prods});
   });
+
+  // Luego productos sin sección
+  const sinSeccion = menu.filter(p=>p.activo && !p.seccionId && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
+  if(sinSeccion.length) grupos.push({titulo:'📋 General', productos:sinSeccion});
+
+  if(!grupos.length){
+    c.innerHTML='<div class="empty-state" style="padding:16px 0;">No se encontraron productos</div>';
+    updateOrderTotal(); return;
+  }
+
+  grupos.forEach(g=>{
+    // Título de sección
+    const secDiv=document.createElement('div');
+    secDiv.style.cssText='font-size:13px;font-weight:700;color:var(--rojo);padding:10px 0 4px;border-top:1px solid var(--border);margin-top:4px;';
+    secDiv.textContent=g.titulo;
+    c.appendChild(secDiv);
+
+    g.productos.forEach(p=>{
+      const d=document.createElement('div'); d.className='order-item';
+      d.innerHTML='<div style="flex:1;min-width:0;"><div class="order-item-name">'+p.nombre+'</div><div class="order-item-desc">'+p.desc+'</div><div class="order-item-price">'+fmt(p.precio)+'</div></div>'
+        +'<div class="qty-control"><button class="qty-btn" data-id="'+p.id+'" data-delta="-1">−</button><span class="qty-num" id="qty-'+p.id+'">'+(qtys[p.id]||0)+'</span><button class="qty-btn" data-id="'+p.id+'" data-delta="1">+</button></div>';
+      c.appendChild(d);
+    });
+  });
+
   c.querySelectorAll('.qty-btn').forEach(btn=>{
     btn.addEventListener('click',()=>changeQty(parseInt(btn.dataset.id),parseInt(btn.dataset.delta)));
   });
   updateOrderTotal();
+}
+
+function filtrarPedidos(){
+  const q=document.getElementById('pedido-search').value;
+  renderOrderItems(q);
 }
 
 function changeQty(id,delta){
@@ -992,11 +1027,16 @@ window.agregarCompra = async function(){
   await saveCaja(); updateCajaResumen(); notif('🛒 Compra registrada');
 };
 function updateCajaResumen(){
-  let venTotal=0; ventas.forEach(v=>venTotal+=v.total);
+  let venTotal=0, fiadoTotal=0;
+  ventas.forEach(v=>{
+    if(v.pago==='fiado') fiadoTotal+=v.total;
+    else venTotal+=v.total;
+  });
   document.getElementById('dinero-base-display').textContent=fmt(baseActual);
   document.getElementById('res-base').textContent=fmt(baseActual);
   document.getElementById('res-ventas').textContent='+'+fmt(venTotal);
   document.getElementById('res-compras').textContent='−'+fmt(comprasTotal);
+  document.getElementById('res-fiado-caja').textContent=fmt(fiadoTotal);
   document.getElementById('res-final').textContent=fmt(baseActual+venTotal-comprasTotal);
 }
 window.cerrarDia = async function(){
