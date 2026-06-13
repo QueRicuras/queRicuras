@@ -203,7 +203,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       <!-- Búsqueda en pedidos -->
       <div style="position:relative;margin-bottom:10px;">
         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;">🔍</span>
-        <input type="text" id="pedido-search" placeholder="Buscar producto..." oninput="filtrarPedidos()" style="padding-left:36px;"/>
+        <input type="text" id="pedido-search" placeholder="Buscar producto..." style="padding-left:36px;"/>
       </div>
       <div id="order-items"></div>
       <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
@@ -270,7 +270,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     <!-- Búsqueda -->
     <div style="position:relative;">
       <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;">🔍</span>
-      <input type="text" id="menu-search" placeholder="Buscar producto..." oninput="filtrarMenu()" style="padding-left:38px;"/>
+      <input type="text" id="menu-search" placeholder="Buscar producto..." style="padding-left:38px;"/>
     </div>
     <div id="menu-secciones"></div>
   </div>
@@ -1154,6 +1154,20 @@ window.cambiarPin = async function(rol){
 window.openModal = function(id){document.getElementById(id).classList.add('open');};
 window.closeModal = function(id){document.getElementById(id).classList.remove('open');};
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+// ─── BÚSQUEDA ────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  const pedidoSearch = document.getElementById('pedido-search');
+  if(pedidoSearch){
+    pedidoSearch.addEventListener('input', function(){ renderOrderItems(this.value); });
+    pedidoSearch.addEventListener('keyup', function(){ renderOrderItems(this.value); });
+  }
+  const menuSearch = document.getElementById('menu-search');
+  if(menuSearch){
+    menuSearch.addEventListener('input', function(){ renderMenuTab(this.value); });
+    menuSearch.addEventListener('keyup', function(){ renderMenuTab(this.value); });
+  }
+});
 
 // ─── INICIO ──────────────────────────────────────────
 (async()=>{
