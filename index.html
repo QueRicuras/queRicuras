@@ -291,8 +291,9 @@ input:focus,select:focus{border-color:var(--rojo);}
       </div>
       <button class="btn success" onclick="actualizarBase()">✔ Guardar base</button>
     </div>
+
     <div class="card">
-      <div class="section-title">Compras de la noche</div>
+      <div class="section-title">🛒 Compras de la noche</div>
       <div id="compras-list"></div>
       <div style="display:flex;gap:8px;margin-top:10px;">
         <input type="text" placeholder="¿Qué se compró?" id="compra-desc" style="flex:1;"/>
@@ -300,13 +301,26 @@ input:focus,select:focus{border-color:var(--rojo);}
       </div>
       <button class="btn danger" style="margin-top:10px;" onclick="agregarCompra()">+ Registrar compra</button>
     </div>
+
     <div class="card">
-      <div class="section-title">Resumen de caja</div>
+      <div class="section-title">👷 Pago de empleados</div>
+      <div id="empleados-list"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" placeholder="Nombre empleado" id="emp-nombre" style="flex:1;"/>
+        <input type="number" placeholder="$" id="emp-valor" style="width:95px;"/>
+      </div>
+      <button class="btn success" style="margin-top:10px;" onclick="agregarEmpleado()">+ Agregar empleado</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📊 Resumen de caja</div>
       <div class="caja-row"><span>Base inicial</span><span id="res-base" style="font-weight:600;">$0</span></div>
-      <div class="caja-row"><span>Ventas cobradas</span><span id="res-ventas" style="color:var(--green);font-weight:600;">+$0</span></div>
-      <div class="caja-row"><span>Fiados (no en caja)</span><span id="res-fiado-caja" style="color:var(--rojo);font-weight:600;">$0</span></div>
-      <div class="caja-row"><span>Compras de la noche</span><span id="res-compras" style="color:var(--rojo);font-weight:600;">−$0</span></div>
-      <div class="caja-row" style="font-weight:700;font-size:16px;"><span>Caja final estimada</span><span id="res-final" style="color:var(--teal);">$0</span></div>
+      <div class="caja-row"><span style="color:var(--rojo);">− Compras</span><span id="res-compras" style="color:var(--rojo);font-weight:600;">$0</span></div>
+      <div class="caja-row"><span style="color:var(--rojo);">− Pago empleados</span><span id="res-empleados" style="color:var(--rojo);font-weight:600;">$0</span></div>
+      <div class="caja-row" style="border-top:1px dashed var(--border);padding-top:8px;"><span>Base disponible</span><span id="res-base-disponible" style="font-weight:600;color:var(--teal);">$0</span></div>
+      <div class="caja-row"><span>+ Ventas cobradas</span><span id="res-ventas" style="color:var(--green);font-weight:600;">$0</span></div>
+      <div class="caja-row"><span style="color:var(--muted);font-size:12px;">Fiados pendientes</span><span id="res-fiado-caja" style="color:var(--rojo);font-size:12px;">$0</span></div>
+      <div class="caja-row" style="font-weight:700;font-size:16px;border-top:1px solid var(--border);padding-top:10px;margin-top:4px;"><span>Caja final estimada</span><span id="res-final" style="color:var(--teal);">$0</span></div>
     </div>
     <button class="btn danger" onclick="cerrarDia()">🔄 Cerrar día y reiniciar ventas</button>
   </div>
@@ -452,6 +466,8 @@ let qtys = {}, pago = 'efectivo', currentRole = '';
 let nextId = 100, nextSeccionId = 10;
 let PINS = {Abuela:'1234', Empleado:'5678'};
 let online = true;
+let seccionesAbiertas = {};
+let empleados = []; // lista de empleados a pagar
 
 // ─── UTILIDADES ─────────────────────────────────────
 const fmt = n => '$'+Math.round(n).toLocaleString('es-CO');
@@ -629,42 +645,48 @@ function initOrder(){ menu.filter(p=>p.activo).forEach(p=>{ if(qtys[p.id]===unde
 function renderOrderItems(filtro=''){
   const c=document.getElementById('order-items'); c.innerHTML='';
   const texto = filtro.toLowerCase().trim();
-
-  // Agrupar productos activos por sección
   const grupos = [];
-
-  // Primero secciones con sus productos
   secciones.forEach(s=>{
     const prods = menu.filter(p=>p.activo && p.seccionId==s.id && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
-    if(prods.length) grupos.push({titulo:(s.emoji?s.emoji+' ':'')+s.nombre, productos:prods});
+    if(prods.length) grupos.push({id:'sec-'+s.id, titulo:(s.emoji?s.emoji+' ':'')+s.nombre, productos:prods});
   });
-
-  // Luego productos sin sección
   const sinSeccion = menu.filter(p=>p.activo && !p.seccionId && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
-  if(sinSeccion.length) grupos.push({titulo:'📋 General', productos:sinSeccion});
+  if(sinSeccion.length) grupos.push({id:'sec-general', titulo:'📋 General', productos:sinSeccion});
 
-  if(!grupos.length){
-    c.innerHTML='<div class="empty-state" style="padding:16px 0;">No se encontraron productos</div>';
-    updateOrderTotal(); return;
-  }
+  if(!grupos.length){ c.innerHTML='<div class="empty-state" style="padding:16px 0;">No se encontraron productos</div>'; updateOrderTotal(); return; }
 
   grupos.forEach(g=>{
-    // Título de sección
-    const secDiv=document.createElement('div');
-    secDiv.style.cssText='font-size:13px;font-weight:700;color:var(--rojo);padding:10px 0 4px;border-top:1px solid var(--border);margin-top:4px;';
-    secDiv.textContent=g.titulo;
-    c.appendChild(secDiv);
+    const abierto = seccionesAbiertas[g.id] !== false; // por defecto abierto
+    // Header colapsable
+    const hdr = document.createElement('div');
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--rojo);padding:10px 0 6px;border-top:1px solid var(--border);margin-top:4px;cursor:pointer;';
+    hdr.innerHTML='<span>'+g.titulo+'</span><span style="font-size:16px;transition:transform .2s;">'+(abierto?'▲':'▼')+'</span>';
+    c.appendChild(hdr);
+
+    // Contenedor de productos
+    const body = document.createElement('div');
+    body.style.display = abierto ? 'block' : 'none';
+    body.dataset.secId = g.id;
 
     g.productos.forEach(p=>{
       const d=document.createElement('div'); d.className='order-item';
       d.innerHTML='<div style="flex:1;min-width:0;"><div class="order-item-name">'+p.nombre+'</div><div class="order-item-desc">'+p.desc+'</div><div class="order-item-price">'+fmt(p.precio)+'</div></div>'
         +'<div class="qty-control"><button class="qty-btn" data-id="'+p.id+'" data-delta="-1">−</button><span class="qty-num" id="qty-'+p.id+'">'+(qtys[p.id]||0)+'</span><button class="qty-btn" data-id="'+p.id+'" data-delta="1">+</button></div>';
-      c.appendChild(d);
+      body.appendChild(d);
+    });
+    c.appendChild(body);
+
+    // Toggle al tocar el header
+    hdr.addEventListener('click', ()=>{
+      const estaAbierto = body.style.display !== 'none';
+      body.style.display = estaAbierto ? 'none' : 'block';
+      seccionesAbiertas[g.id] = !estaAbierto;
+      hdr.querySelector('span:last-child').textContent = estaAbierto ? '▼' : '▲';
     });
   });
 
   c.querySelectorAll('.qty-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>changeQty(parseInt(btn.dataset.id),parseInt(btn.dataset.delta)));
+    btn.addEventListener('click', e=>{ e.stopPropagation(); changeQty(parseInt(btn.dataset.id),parseInt(btn.dataset.delta)); });
   });
   updateOrderTotal();
 }
@@ -1024,17 +1046,74 @@ window.agregarCompra = async function(){
 };
 function updateCajaResumen(){
   let venTotal=0, fiadoTotal=0;
-  ventas.forEach(v=>{
-    if(v.pago==='fiado') fiadoTotal+=v.total;
-    else venTotal+=v.total;
-  });
+  ventas.forEach(v=>{ if(v.pago==='fiado') fiadoTotal+=v.total; else venTotal+=v.total; });
+  const pagoEmpleados = empleados.filter(e=>e.pagado).reduce((s,e)=>s+e.valor,0);
+  const baseDisponible = baseActual - comprasTotal - pagoEmpleados;
+  const cajaFinal = baseDisponible + venTotal;
   document.getElementById('dinero-base-display').textContent=fmt(baseActual);
   document.getElementById('res-base').textContent=fmt(baseActual);
-  document.getElementById('res-ventas').textContent='+'+fmt(venTotal);
   document.getElementById('res-compras').textContent='−'+fmt(comprasTotal);
+  document.getElementById('res-empleados').textContent='−'+fmt(pagoEmpleados);
+  document.getElementById('res-base-disponible').textContent=fmt(baseDisponible);
+  document.getElementById('res-ventas').textContent='+'+fmt(venTotal);
   document.getElementById('res-fiado-caja').textContent=fmt(fiadoTotal);
-  document.getElementById('res-final').textContent=fmt(baseActual+venTotal-comprasTotal);
+  document.getElementById('res-final').textContent=fmt(cajaFinal);
 }
+
+function renderEmpleadosUI(){
+  const el = document.getElementById('empleados-list');
+  if(!el) return;
+  if(!empleados.length){ el.innerHTML='<div class="empty-state">Sin empleados registrados</div>'; return; }
+  el.innerHTML='';
+  empleados.forEach((e,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);gap:8px;';
+    d.innerHTML=`<label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;">
+      <input type="checkbox" ${e.pagado?'checked':''} onchange="togglePagoEmpleado(${i})" style="width:18px;height:18px;accent-color:var(--green);"/>
+      <span style="font-size:14px;font-weight:500;${e.pagado?'text-decoration:line-through;color:var(--muted)':''}">${e.nombre}</span>
+    </label>
+    <span style="font-size:14px;font-weight:600;color:${e.pagado?'var(--muted)':'var(--rojo)'};">${fmt(e.valor)}</span>
+    <button onclick="editarEmpleado(${i})" style="background:none;border:none;cursor:pointer;font-size:16px;">✏️</button>
+    <button onclick="eliminarEmpleado(${i})" style="background:none;border:none;cursor:pointer;font-size:16px;">🗑</button>`;
+    el.appendChild(d);
+  });
+}
+
+window.agregarEmpleado = function(){
+  const nombre=document.getElementById('emp-nombre').value.trim();
+  const valor=parseInt(document.getElementById('emp-valor').value)||0;
+  if(!nombre||!valor){notif('❌ Completa nombre y valor');return;}
+  empleados.push({nombre,valor,pagado:false});
+  document.getElementById('emp-nombre').value='';
+  document.getElementById('emp-valor').value='';
+  renderEmpleadosUI(); updateCajaResumen();
+  notif('👷 Empleado agregado');
+};
+
+window.togglePagoEmpleado = function(i){
+  empleados[i].pagado = !empleados[i].pagado;
+  renderEmpleadosUI(); updateCajaResumen();
+  notif(empleados[i].pagado?'✅ Pago registrado':'↩️ Pago desmarcado');
+};
+
+window.editarEmpleado = function(i){
+  const e=empleados[i];
+  const nuevoNombre=prompt('Nombre del empleado:',e.nombre);
+  if(nuevoNombre===null) return;
+  const nuevoValor=parseInt(prompt('Valor a pagar ($):',e.valor))||0;
+  if(!nuevoValor) return;
+  empleados[i].nombre=nuevoNombre.trim()||e.nombre;
+  empleados[i].valor=nuevoValor;
+  renderEmpleadosUI(); updateCajaResumen();
+  notif('💾 Empleado actualizado');
+};
+
+window.eliminarEmpleado = function(i){
+  if(!confirm('¿Eliminar a '+empleados[i].nombre+'?')) return;
+  empleados.splice(i,1);
+  renderEmpleadosUI(); updateCajaResumen();
+  notif('🗑 Empleado eliminado');
+};
 window.cerrarDia = async function(){
   if(!confirm('¿Cerrar el día de hoy? Las ventas se guardarán en el historial y se reiniciarán.')) return;
   let tot=0,ef=0,nq=0,fi=0;
