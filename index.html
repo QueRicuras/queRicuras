@@ -245,7 +245,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       <div class="section-title">Ventas de hoy</div>
       <div id="ventas-list"><div class="empty-state">Aún no hay ventas registradas</div></div>
     </div>
-    <button class="export-btn" onclick="exportarCSV()">📥 Exportar ventas del día (CSV)</button>
+    <button class="export-btn" onclick="exportarWhatsAppVentas()">📲 Enviar ventas del día por WhatsApp</button>
   </div>
 
   <!-- FIADOS -->
@@ -323,6 +323,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       <div class="caja-row" style="font-weight:700;font-size:16px;border-top:1px solid var(--border);padding-top:10px;margin-top:4px;"><span>Caja final estimada</span><span id="res-final" style="color:var(--teal);">$0</span></div>
     </div>
     <button class="btn danger" onclick="cerrarDia()">🔄 Cerrar día y reiniciar ventas</button>
+    <button class="export-btn" style="margin-top:4px;" onclick="exportarWhatsAppCaja()">📲 Enviar resumen de caja por WhatsApp</button>
   </div>
 
   <!-- HISTORIAL -->
@@ -1023,8 +1024,38 @@ window.agregarProducto = async function(){
 // ─── CAJA ────────────────────────────────────────────
 function renderComprasUI(){
   const cl=document.getElementById('compras-list'); cl.innerHTML='';
-  comprasHoy.forEach(c=>{ const d=document.createElement('div'); d.className='compra-item'; d.innerHTML='<span>'+c.desc+'</span><span>−'+fmt(c.val)+'</span>'; cl.appendChild(d); });
+  if(!comprasHoy.length){ cl.innerHTML='<div class="empty-state">Sin compras registradas</div>'; return; }
+  comprasHoy.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--rojo-light);border-radius:var(--radius);margin-bottom:6px;gap:8px;';
+    d.innerHTML='<span style="flex:1;font-size:13px;">'+c.desc+'</span>'
+      +'<span style="color:var(--rojo);font-weight:600;font-size:13px;">−'+fmt(c.val)+'</span>'
+      +'<button onclick="editarCompra('+i+')" style="background:none;border:none;cursor:pointer;font-size:15px;padding:0 2px;">✏️</button>'
+      +'<button onclick="eliminarCompra('+i+')" style="background:none;border:none;cursor:pointer;font-size:15px;padding:0 2px;">🗑</button>';
+    cl.appendChild(d);
+  });
 }
+
+window.editarCompra = async function(i){
+  const c = comprasHoy[i];
+  const nuevoDesc = prompt('Descripción de la compra:', c.desc);
+  if(nuevoDesc === null) return;
+  const nuevoVal = parseInt(prompt('Valor ($):', c.val))||0;
+  if(!nuevoVal) return;
+  comprasTotal -= c.val;
+  comprasHoy[i] = {desc: nuevoDesc.trim()||c.desc, val: nuevoVal};
+  comprasTotal += nuevoVal;
+  await saveCaja(); renderComprasUI(); updateCajaResumen();
+  notif('💾 Compra actualizada');
+};
+
+window.eliminarCompra = async function(i){
+  if(!confirm('¿Eliminar "'+comprasHoy[i].desc+'"?')) return;
+  comprasTotal -= comprasHoy[i].val;
+  comprasHoy.splice(i,1);
+  await saveCaja(); renderComprasUI(); updateCajaResumen();
+  notif('🗑 Compra eliminada');
+};
 async function saveCaja(){ try{ await fbSet('config/caja',{base:baseActual,comprasTotal,comprasHoy}); setSyncDot('ok'); }catch(e){ setSyncDot('err'); } }
 
 window.actualizarBase = async function(){
@@ -1185,20 +1216,88 @@ async function updateHistorial(){
   historial.forEach(d=>{ const row=document.createElement('div'); row.className='sale-row'; row.innerHTML='<div><div style="font-size:14px;font-weight:600;">'+d.fecha+'</div><div style="font-size:12px;color:var(--muted);">'+d.pedidos+' pedidos · Compras: '+fmt(d.compras)+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:700;color:var(--green);">'+fmt(d.total)+'</div><div style="font-size:11px;color:var(--muted);">Ef:'+fmt(d.efectivo)+' | Nq:'+fmt(d.nequi)+'</div></div>'; hl.appendChild(row); });
 }
 
-// ─── EXPORT CSV ──────────────────────────────────────
+// ─── EXPORTAR WHATSAPP ───────────────────────────────
 window.exportarCSV = function(){
-  if(!ventas.length){alert('No hay ventas para exportar');return;}
-  let csv='Hora,Productos,Método,Cliente,Total\n';
-  ventas.forEach(v=>{ csv+=v.hora+',"'+v.items+'",'+v.pago+','+(v.nombre||'')+','+v.total+'\n'; });
-  descargarCSV(csv,'QueRicuras_Ventas_'+fechaHoy()+'.csv'); notif('📥 CSV descargado');
+  // mantener por compatibilidad — redirige a WhatsApp ventas
+  exportarWhatsAppVentas();
 };
+
+window.exportarWhatsAppCaja = function(){
+  let venTotal=0, fiadoTotal=0;
+  ventas.forEach(v=>{ if(v.pago==='fiado') fiadoTotal+=v.total; else venTotal+=v.total; });
+  const pagoEmpleados = empleados.filter(e=>e.pagado).reduce((s,e)=>s+e.valor,0);
+  const baseDisponible = baseActual - comprasTotal - pagoEmpleados;
+  const cajaFinal = baseDisponible + venTotal;
+
+  let msg = '🔥 *Que Ricuras — Cierre de Caja*\n';
+  msg += '📅 '+fechaHoy()+'\n';
+  msg += '─────────────────────\n';
+  msg += '💰 *Base inicial:* '+fmt(baseActual)+'\n';
+
+  if(comprasHoy.length){
+    msg += '\n🛒 *Compras de la noche:*\n';
+    comprasHoy.forEach(c=>{ msg += '  • '+c.desc+': −'+fmt(c.val)+'\n'; });
+    msg += '  *Total compras:* −'+fmt(comprasTotal)+'\n';
+  }
+
+  if(empleados.length){
+    msg += '\n👷 *Pago empleados:*\n';
+    empleados.forEach(e=>{ msg += '  • '+e.nombre+': −'+fmt(e.valor)+(e.pagado?' ✅':' ⏳')+'\n'; });
+    msg += '  *Total pagado:* −'+fmt(pagoEmpleados)+'\n';
+  }
+
+  msg += '\n📊 *Base disponible:* '+fmt(baseDisponible)+'\n';
+  msg += '\n📦 *Ventas del día:*\n';
+  msg += '  💵 Efectivo: '+fmt(ventas.filter(v=>v.pago==='efectivo').reduce((s,v)=>s+v.total,0))+'\n';
+  msg += '  📱 Nequi: '+fmt(ventas.filter(v=>v.pago==='nequi').reduce((s,v)=>s+v.total,0))+'\n';
+  msg += '  📝 Fiado: '+fmt(fiadoTotal)+' (pendiente)\n';
+  msg += '  *Total cobrado:* +'+fmt(venTotal)+'\n';
+  msg += '\n─────────────────────\n';
+  msg += '✅ *Caja final estimada: '+fmt(cajaFinal)+'*\n';
+  msg += '_(Sin contar fiados pendientes)_';
+
+  const url = 'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+  notif('📲 Abriendo WhatsApp...');
+};
+
+window.exportarWhatsAppVentas = function(){
+  if(!ventas.length){notif('❌ No hay ventas para exportar');return;}
+  let msg = '🔥 *Que Ricuras — Ventas del día*\n';
+  msg += '📅 '+fechaHoy()+'\n';
+  msg += '─────────────────────\n';
+  ventas.forEach((v,i)=>{
+    msg += (i+1)+'. '+v.items+'\n';
+    msg += '   🕐 '+v.hora+' | '+fmt(v.total);
+    if(v.pago==='efectivo') msg += ' 💵';
+    else if(v.pago==='nequi') msg += ' 📱';
+    else msg += ' 📝 Fiado: '+v.nombre;
+    msg += '\n';
+  });
+  let tot=0,ef=0,nq=0,fi=0;
+  ventas.forEach(v=>{ tot+=v.total; if(v.pago==='efectivo')ef+=v.total; else if(v.pago==='nequi')nq+=v.total; else fi+=v.total; });
+  msg += '─────────────────────\n';
+  msg += '💵 Efectivo: '+fmt(ef)+'\n';
+  msg += '📱 Nequi: '+fmt(nq)+'\n';
+  msg += '📝 Fiado: '+fmt(fi)+'\n';
+  msg += '✅ *Total: '+fmt(tot)+'*';
+  const url = 'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+  notif('📲 Abriendo WhatsApp...');
+};
+
 window.exportarHistorial = function(){
-  if(!historial.length){alert('No hay historial para exportar');return;}
-  let csv='Fecha,Pedidos,Total,Efectivo,Nequi,Fiado,Base,Compras\n';
-  historial.forEach(d=>{ csv+=d.fecha+','+d.pedidos+','+d.total+','+d.efectivo+','+d.nequi+','+d.fiado+','+d.base+','+d.compras+'\n'; });
-  descargarCSV(csv,'QueRicuras_Historial.csv'); notif('📥 Historial exportado');
+  if(!historial.length){notif('❌ No hay historial para exportar');return;}
+  let msg='🔥 *Que Ricuras — Historial*\n📅 Generado: '+fechaHoy()+'\n─────────────────────\n';
+  historial.forEach(d=>{
+    msg+='📅 '+d.fecha+'\n';
+    msg+='  Pedidos: '+d.pedidos+' | Total: '+fmt(d.total)+'\n';
+    msg+='  💵 Ef: '+fmt(d.efectivo)+' | 📱 Nq: '+fmt(d.nequi)+' | 📝 Fi: '+fmt(d.fiado)+'\n\n';
+  });
+  const url='https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+  notif('📲 Abriendo WhatsApp...');
 };
-function descargarCSV(csv,nombre){ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=nombre; a.click(); URL.revokeObjectURL(url); }
 window.borrarHistorial = async function(){
   if(!confirm('¿Borrar TODO el historial?')) return;
   for(const d of historial) if(d._fbId) await deleteDoc(doc(db,'historial',d._fbId));
