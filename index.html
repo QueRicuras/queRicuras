@@ -134,7 +134,7 @@ input:focus,select:focus{border-color:var(--rojo);}
 .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;background:#fff;}
 .spinner{width:40px;height:40px;border:4px solid var(--rojo-light);border-top-color:var(--rojo);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
+ 
   /* LOGIN PC */
   .login-screen{
     flex-direction:row;max-width:100%;min-height:100vh;padding:0;gap:0;
@@ -159,10 +159,10 @@ input:focus,select:focus{border-color:var(--rojo);}
   .login-right .login-logo,
   .login-right .login-brand,
   .login-right .login-tag{ display:none!important; }
-
+ 
   /* MAIN APP PC */
   #main-view{ flex-direction:row!important; }
-
+ 
   #pc-sidebar{
     width:220px!important;min-width:220px!important;
     display:flex!important;flex-direction:column;
@@ -186,7 +186,7 @@ input:focus,select:focus{border-color:var(--rojo);}
   .sidebar-footer{margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,0.2);width:100%;}
   .sidebar-user{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.85);font-size:12px;cursor:pointer;padding:8px;border-radius:8px;}
   .sidebar-user:hover{background:rgba(255,255,255,0.1);}
-
+ 
   #pc-main{flex:1;display:flex!important;flex-direction:column;background:#f2f2f2;min-width:0;overflow:hidden;}
   #pc-topbar{
     display:flex!important;background:#fff;border-bottom:1px solid var(--border);
@@ -195,17 +195,17 @@ input:focus,select:focus{border-color:var(--rojo);}
   .pc-page-title{font-size:18px;font-weight:700;color:var(--text);}
   .pc-date{font-size:12px;color:var(--muted);}
   .pc-sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
-
+ 
   /* Ocultar topbar móvil y nav-tabs en PC */
   .top-bar{display:none!important;}
   .nav-tabs{display:none!important;}
-
+ 
   /* Screens en PC */
   .screen{padding:20px 28px;gap:16px;overflow-y:auto;max-height:calc(100vh - 57px);}
   .summary-grid{grid-template-columns:repeat(4,1fr);}
   .card{border-radius:14px;}
 }
-
+ 
 @media(max-width:899px){
   #pc-sidebar{display:none!important;}
   #pc-topbar{display:none!important;}
@@ -223,7 +223,7 @@ input:focus,select:focus{border-color:var(--rojo);}
 </head>
 <body>
 <div id="app">
-
+ 
 <!-- LOADING -->
 <div id="loading-view" class="loading-screen">
   <div style="font-size:50px;">🔥</div>
@@ -231,7 +231,7 @@ input:focus,select:focus{border-color:var(--rojo);}
   <div class="spinner"></div>
   <div style="font-size:13px;color:var(--muted);" id="loading-msg">Conectando...</div>
 </div>
-
+ 
 <!-- LOGIN -->
 <div id="login-view" class="login-screen" style="display:none;">
   <div class="login-logo">🔥</div>
@@ -257,7 +257,7 @@ input:focus,select:focus{border-color:var(--rojo);}
   <div class="pin-err" id="pin-err">PIN incorrecto. Intenta de nuevo.</div>
   <div class="demo-hint">Que Ricuras · Mar–Dom · 6:00 pm – 10:00 pm</div>
 </div>
-
+ 
 <!-- MAIN -->
 <div id="main-view" style="display:none;flex-direction:column;flex:1;">
   <!-- SIDEBAR PC -->
@@ -301,7 +301,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     </div>
     <div class="user-badge" onclick="logout()" id="user-badge">👤 Abuela</div>
   </div>
-
+ 
   <div class="nav-tabs" role="tablist">
     <button class="nav-tab active" onclick="showTab('pedidos',this)">📋 Pedidos</button>
     <button class="nav-tab" onclick="showTab('ventas',this)">💰 Ventas</button>
@@ -311,7 +311,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     <button class="nav-tab" onclick="showTab('historial',this)">📊 Historial</button>
     <button class="nav-tab" id="tab-btn-ajustes" style="display:none;" onclick="showTab('ajustes',this)">⚙️ Ajustes</button>
   </div>
-
+ 
   <!-- PEDIDOS -->
   <div id="tab-pedidos" class="screen active">
     <div class="card">
@@ -342,7 +342,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     </div>
     <button class="btn amarillo-btn" onclick="registrarPedido()">✅ Registrar pedido</button>
   </div>
-
+ 
   <!-- VENTAS -->
   <div id="tab-ventas" class="screen">
     <div class="summary-grid">
@@ -363,7 +363,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     </div>
     <button class="export-btn" onclick="exportarWhatsAppVentas()">📲 Enviar ventas del día por WhatsApp</button>
   </div>
-
+ 
   <!-- FIADOS -->
   <div id="tab-fiado" class="screen">
     <div class="card" style="background:var(--rojo-light);border-color:var(--rojo-border);">
@@ -375,7 +375,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       <div id="fiado-list"><div class="empty-state">No hay fiados pendientes</div></div>
     </div>
   </div>
-
+ 
   <!-- MENÚ -->
   <div id="tab-menu" class="screen">
     <!-- Solo admin -->
@@ -390,7 +390,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     </div>
     <div id="menu-secciones"></div>
   </div>
-
+ 
   <!-- CAJA -->
   <div id="tab-caja" class="screen">
     <div class="card" style="background:var(--amarillo-light);border-color:var(--amarillo-dark);">
@@ -407,7 +407,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       </div>
       <button class="btn success" onclick="actualizarBase()">✔ Guardar base</button>
     </div>
-
+ 
     <div class="card">
       <div class="section-title">🛒 Compras de la noche</div>
       <div id="compras-list"></div>
@@ -417,7 +417,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       </div>
       <button class="btn danger" style="margin-top:10px;" onclick="agregarCompra()">+ Registrar compra</button>
     </div>
-
+ 
     <div class="card">
       <div class="section-title">👷 Pago de empleados</div>
       <div id="empleados-list"></div>
@@ -427,7 +427,7 @@ input:focus,select:focus{border-color:var(--rojo);}
       </div>
       <button class="btn success" style="margin-top:10px;" onclick="agregarEmpleado()">+ Agregar empleado</button>
     </div>
-
+ 
     <div class="card">
       <div class="section-title">📊 Resumen de caja</div>
       <div class="caja-row"><span>Base inicial</span><span id="res-base" style="font-weight:600;">$0</span></div>
@@ -441,7 +441,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     <button class="btn danger" onclick="cerrarDia()">🔄 Cerrar día y reiniciar ventas</button>
     <button class="export-btn" style="margin-top:4px;" onclick="exportarWhatsAppCaja()">📲 Enviar resumen de caja por WhatsApp</button>
   </div>
-
+ 
   <!-- HISTORIAL -->
   <div id="tab-historial" class="screen">
     <div class="summary-grid">
@@ -465,7 +465,7 @@ input:focus,select:focus{border-color:var(--rojo);}
     <button class="export-btn" onclick="exportarHistorial()">📥 Exportar historial completo (CSV)</button>
     <button class="btn danger" style="margin-top:4px;" onclick="borrarHistorial()">🗑 Borrar todo el historial</button>
   </div>
-
+ 
   <!-- AJUSTES -->
   <div id="tab-ajustes" class="screen">
     <div class="card">
@@ -495,7 +495,7 @@ input:focus,select:focus{border-color:var(--rojo);}
   </div>
 </div>
 </div>
-
+ 
 <!-- MODALES -->
 <!-- MODAL TICKET WHATSAPP -->
 <div class="modal-overlay" id="modal-ticket">
@@ -557,12 +557,12 @@ input:focus,select:focus{border-color:var(--rojo);}
   </div>
 </div>
 <div class="notif" id="notif"></div>
-
+ 
 <!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+ 
 // ─── CONFIG FIREBASE ────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyAcy4YWLlJNMAuYHtxGmxz59AKYD1XDP1c",
@@ -572,10 +572,10 @@ const firebaseConfig = {
   messagingSenderId: "719828966445",
   appId: "1:719828966445:web:74c98458fc7b0bf0fc6ca4"
 };
-
+ 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+ 
 // ─── ESTADO ─────────────────────────────────────────
 let menu = [], ventas = [], historial = [], fiados = [], secciones = [];
 let baseActual = 0, comprasHoy = [], comprasTotal = 0;
@@ -585,12 +585,12 @@ let PINS = {Abuela:'1234', Empleado:'5678'};
 let online = true;
 let seccionesAbiertas = {};
 let empleados = []; // lista de empleados a pagar
-
+ 
 // ─── UTILIDADES ─────────────────────────────────────
 const fmt = n => '$'+Math.round(n).toLocaleString('es-CO');
 const horaActual = () => { const d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); };
 const fechaHoy = () => { const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); };
-
+ 
 function notif(msg){
   const el=document.getElementById('notif');
   el.textContent=msg; el.classList.add('show');
@@ -602,16 +602,16 @@ function setSyncDot(state){
   d.className='sync-dot'+(state==='off'?' off':state==='err'?' err':'');
   d.title=state==='off'?'Sin internet':state==='err'?'Error de sincronización':'Sincronizado';
 }
-
+ 
 // ─── SEGURIDAD ───────────────────────────────────────
 // Clave interna de la app — no es el PIN de usuario, es para proteger Firestore
 const APP_SECRET = 'queRicuras_2025_x9k';
-
+ 
 // ─── FIREBASE HELPERS ────────────────────────────────
 async function fbGet(docPath){ const s=await getDoc(doc(db,docPath)); return s.exists()?s.data():null; }
 async function fbSet(docPath,data){ await setDoc(doc(db,docPath),{...data,_secret:APP_SECRET}); }
 async function fbUpdate(docPath,data){ await updateDoc(doc(db,docPath),{...data,_secret:APP_SECRET}); }
-
+ 
 // ─── FIREBASE CON TIMEOUT ────────────────────────────
 function withTimeout(promise, ms=8000){
   return Promise.race([
@@ -619,7 +619,7 @@ function withTimeout(promise, ms=8000){
     new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout — Firebase tardó demasiado')),ms))
   ]);
 }
-
+ 
 // ─── CARGAR DATOS ────────────────────────────────────
 async function loadAll(){
   try {
@@ -640,29 +640,29 @@ async function loadAll(){
       menu.sort((a,b)=>a.id-b.id);
     }
     nextId = menu.reduce((mx,p)=>Math.max(mx,p.id),99)+1;
-
+ 
     document.getElementById('loading-msg').textContent='3. Cargando ventas...';
     const ventasSnap = await withTimeout(getDocs(collection(db,'ventas')));
     document.getElementById('loading-msg').textContent='4. Ventas OK...';
     ventas = ventasSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
     ventas.sort((a,b)=>a.hora>b.hora?1:-1);
-
+ 
     document.getElementById('loading-msg').textContent='5. Cargando historial...';
     const histSnap = await withTimeout(getDocs(collection(db,'historial')));
     document.getElementById('loading-msg').textContent='6. Historial OK...';
     historial = histSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
     historial.sort((a,b)=>b.fecha.localeCompare(a.fecha));
-
+ 
     document.getElementById('loading-msg').textContent='7. Cargando fiados...';
     const fiadosSnap = await withTimeout(getDocs(collection(db,'fiados')));
     document.getElementById('loading-msg').textContent='8. Fiados OK...';
     fiados = fiadosSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
-
+ 
     document.getElementById('loading-msg').textContent='9. Cargando caja...';
     const cajaDoc = await withTimeout(fbGet('config/caja'));
     document.getElementById('loading-msg').textContent='10. Caja OK...';
     if(cajaDoc){ baseActual=cajaDoc.base||0; comprasTotal=cajaDoc.comprasTotal||0; comprasHoy=cajaDoc.comprasHoy||[]; }
-
+ 
     document.getElementById('loading-msg').textContent='11. Cargando PINs...';
     const pinsDoc = await withTimeout(fbGet('config/pins'));
     document.getElementById('loading-msg').textContent='12. PINs: '+(pinsDoc?pinsDoc.Abuela:'no encontrado');
@@ -670,13 +670,13 @@ async function loadAll(){
       PINS.Abuela = pinsDoc.Abuela;
       PINS.Empleado = pinsDoc.Empleado || '5678';
     }
-
+ 
     document.getElementById('loading-msg').textContent='13. Cargando secciones...';
     const seccionesSnap = await withTimeout(getDocs(collection(db,'secciones')));
     secciones = seccionesSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
     secciones.sort((a,b)=>a.orden-b.orden);
     nextSeccionId = secciones.reduce((mx,s)=>Math.max(mx,s.id),9)+1;
-
+ 
     document.getElementById('loading-msg').textContent='✅ Todo listo';
     setSyncDot('ok');
     return true;
@@ -688,7 +688,7 @@ async function loadAll(){
     return false;
   }
 }
-
+ 
 // ─── ESCUCHAR CAMBIOS EN TIEMPO REAL ─────────────────
 function suscribirCambios(){
   // Ventas en tiempo real
@@ -712,7 +712,7 @@ function suscribirCambios(){
     updateFiadoTab();
   });
 }
-
+ 
 // ─── LOGIN ───────────────────────────────────────────
 window.selectRol = function(rol,el){
   currentRole=rol;
@@ -730,7 +730,7 @@ window.checkPin = function(){
     mv.style.display='flex'; mv.style.flexDirection='column';
     document.getElementById('user-badge').textContent=(currentRole==='Abuela'?'👑':'👤')+' '+currentRole;
     document.getElementById('tab-btn-ajustes').style.display=currentRole==='Abuela'?'flex':'none';
-
+ 
     initOrder(); renderMenuTab(); renderComprasUI(); updateVentasUI(); updateFiadoTab(); updateCajaResumen();
     suscribirCambios();
   } else {
@@ -745,11 +745,11 @@ window.logout = function(){
   document.querySelectorAll('.rol-card').forEach(c=>c.classList.remove('sel'));
   currentRole='';
 };
-
+ 
 // ─── TABS ────────────────────────────────────────────
 // ─── PEDIDOS ─────────────────────────────────────────
 function initOrder(){ menu.filter(p=>p.activo).forEach(p=>{ if(qtys[p.id]===undefined) qtys[p.id]=0; }); renderOrderItems(); }
-
+ 
 function renderOrderItems(filtro=''){
   const c=document.getElementById('order-items'); c.innerHTML='';
   const texto = filtro.toLowerCase().trim();
@@ -760,9 +760,9 @@ function renderOrderItems(filtro=''){
   });
   const sinSeccion = menu.filter(p=>p.activo && !p.seccionId && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
   if(sinSeccion.length) grupos.push({id:'sec-general', titulo:'📋 General', productos:sinSeccion});
-
+ 
   if(!grupos.length){ c.innerHTML='<div class="empty-state" style="padding:16px 0;">No se encontraron productos</div>'; updateOrderTotal(); return; }
-
+ 
   grupos.forEach(g=>{
     const abierto = seccionesAbiertas[g.id] !== false; // por defecto abierto
     // Header colapsable
@@ -770,12 +770,12 @@ function renderOrderItems(filtro=''){
     hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--rojo);padding:10px 0 6px;border-top:1px solid var(--border);margin-top:4px;cursor:pointer;';
     hdr.innerHTML='<span>'+g.titulo+'</span><span style="font-size:16px;transition:transform .2s;">'+(abierto?'▲':'▼')+'</span>';
     c.appendChild(hdr);
-
+ 
     // Contenedor de productos
     const body = document.createElement('div');
     body.style.display = abierto ? 'block' : 'none';
     body.dataset.secId = g.id;
-
+ 
     g.productos.forEach(p=>{
       const d=document.createElement('div'); d.className='order-item';
       d.innerHTML='<div style="flex:1;min-width:0;"><div class="order-item-name">'+p.nombre+'</div><div class="order-item-desc">'+p.desc+'</div><div class="order-item-price">'+fmt(p.precio)+'</div></div>'
@@ -783,7 +783,7 @@ function renderOrderItems(filtro=''){
       body.appendChild(d);
     });
     c.appendChild(body);
-
+ 
     // Toggle al tocar el header
     hdr.addEventListener('click', ()=>{
       const estaAbierto = body.style.display !== 'none';
@@ -792,18 +792,18 @@ function renderOrderItems(filtro=''){
       hdr.querySelector('span:last-child').textContent = estaAbierto ? '▼' : '▲';
     });
   });
-
+ 
   c.querySelectorAll('.qty-btn').forEach(btn=>{
     btn.addEventListener('click', e=>{ e.stopPropagation(); changeQty(parseInt(btn.dataset.id),parseInt(btn.dataset.delta)); });
   });
   updateOrderTotal();
 }
-
+ 
 function filtrarPedidos(){
   const q=document.getElementById('pedido-search').value;
   renderOrderItems(q);
 }
-
+ 
 function changeQty(id,delta){
   qtys[id]=Math.max(0,(qtys[id]||0)+delta);
   const el=document.getElementById('qty-'+id);
@@ -811,14 +811,14 @@ function changeQty(id,delta){
   updateOrderTotal();
 }
 function updateOrderTotal(){ let t=0; menu.forEach(p=>t+=(qtys[p.id]||0)*p.precio); document.getElementById('order-total').textContent=fmt(t); }
-
+ 
 window.selectPago = function(tipo,el){
   pago=tipo;
   document.querySelectorAll('.pago-btn').forEach(b=>b.classList.remove('selected'));
   el.classList.add('selected');
   document.getElementById('fiado-field').style.display=tipo==='fiado'?'block':'none';
 };
-
+ 
 window.registrarPedido = async function(){
   let total=0; let items=[];
   menu.forEach(p=>{ if((qtys[p.id]||0)>0){ total+=qtys[p.id]*p.precio; items.push(p.nombre+' x'+qtys[p.id]); }});
@@ -853,7 +853,7 @@ window.registrarPedido = async function(){
     mostrarTicket({items, total, pago: venta.pago, nombre: nombreFiado, hora: venta.hora, fecha: venta.fecha});
   } catch(e){ notif('❌ Error al guardar. Sin internet?'); setSyncDot('err'); }
 };
-
+ 
 // ─── TICKET WHATSAPP ─────────────────────────────────
 function mostrarTicket({items, total, pago, nombre, hora, fecha}){
   const metodoPago = pago==='efectivo'?'💵 Efectivo':pago==='nequi'?'📱 Nequi':'📝 Fiado';
@@ -874,7 +874,7 @@ function mostrarTicket({items, total, pago, nombre, hora, fecha}){
     `🕐 ${hora} · ${fecha}\n` +
     `─────────────────────\n` +
     `¡A que te chupas los dedos! 😋`;
-
+ 
   document.getElementById('ticket-texto').textContent = ticket;
   document.getElementById('ticket-whatsapp-btn').onclick = ()=>{
     const msg = encodeURIComponent(ticket);
@@ -882,7 +882,7 @@ function mostrarTicket({items, total, pago, nombre, hora, fecha}){
   };
   openModal('modal-ticket');
 }
-
+ 
 // ─── VENTAS ──────────────────────────────────────────
 function updateVentasUI(){
   let tot=0,ef=0,nq=0,fi=0;
@@ -908,7 +908,7 @@ function updateVentasUI(){
   });
   updateCajaResumen();
 }
-
+ 
 async function cancelarPedido(fbId,pagotipo,nombre,total,items){
   if(!confirm('¿Cancelar este pedido?\n'+items+'\n'+fmt(total))) return;
   try {
@@ -925,7 +925,7 @@ async function cancelarPedido(fbId,pagotipo,nombre,total,items){
     setSyncDot('ok');
   } catch(e){ notif('❌ Error al cancelar'); setSyncDot('err'); }
 }
-
+ 
 // ─── FIADOS ──────────────────────────────────────────
 function updateFiadoTab(){
   const totalFiado=fiados.reduce((s,f)=>s+f.total,0);
@@ -942,7 +942,7 @@ function updateFiadoTab(){
     btn.addEventListener('click',()=>cobrarFiado(btn.dataset.fbid,btn.dataset.nombre,parseFloat(btn.dataset.total)));
   });
 }
-
+ 
 async function cobrarFiado(fbId,nombre,total){
   if(!confirm('¿Confirmas que '+nombre+' ya pagó '+fmt(total)+'?')) return;
   try {
@@ -951,13 +951,13 @@ async function cobrarFiado(fbId,nombre,total){
     setSyncDot('ok');
   } catch(e){ notif('❌ Error al actualizar'); setSyncDot('err'); }
 }
-
+ 
 // ─── MENÚ CON SECCIONES ──────────────────────────────
 function renderMenuTab(filtro=''){
   const esAdmin = currentRole==='Abuela';
   const adminBtns = document.getElementById('menu-admin-btns');
   adminBtns.style.display = esAdmin ? 'flex' : 'none';
-
+ 
   // Actualizar select de sección en modales
   ['prod-seccion','edit-seccion'].forEach(sid=>{
     const sel=document.getElementById(sid); if(!sel) return;
@@ -966,12 +966,12 @@ function renderMenuTab(filtro=''){
     secciones.forEach(s=>{ const o=document.createElement('option'); o.value=s.id; o.textContent=(s.emoji?s.emoji+' ':'')+s.nombre; sel.appendChild(o); });
     sel.value=val;
   });
-
+ 
   const container = document.getElementById('menu-secciones');
   container.innerHTML='';
-
+ 
   const texto = filtro.toLowerCase().trim();
-
+ 
   // Productos sin sección
   const sinSeccion = menu.filter(p=> !p.seccionId && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)));
   // Secciones
@@ -979,17 +979,17 @@ function renderMenuTab(filtro=''){
     seccion: s,
     productos: menu.filter(p=> p.seccionId==s.id && (!texto || p.nombre.toLowerCase().includes(texto) || (p.desc||'').toLowerCase().includes(texto)))
   })).filter(g=> g.productos.length>0 || (!texto && esAdmin));
-
+ 
   // Renderizar cada grupo
   const grupos = [];
   conSeccion.forEach(g=> grupos.push({titulo:(g.seccion.emoji?g.seccion.emoji+' ':'')+g.seccion.nombre, seccionId:g.seccion.id, fbId:g.seccion._fbId, productos:g.productos}));
   if(sinSeccion.length>0 || (!texto && !secciones.length)) grupos.push({titulo:'📋 General', seccionId:null, fbId:null, productos:sinSeccion});
-
+ 
   if(!grupos.length){
     container.innerHTML='<div class="card"><div class="empty-state">Sin resultados</div></div>';
     return;
   }
-
+ 
   grupos.forEach(g=>{
     const card = document.createElement('div');
     card.className='card';
@@ -999,7 +999,7 @@ function renderMenuTab(filtro=''){
       header += '<button class="edit-btn" style="margin-top:0;" data-seccion-id="'+g.seccionId+'">✏️ Sección</button>';
     }
     header += '</div>';
-
+ 
     let items = '';
     if(!g.productos.length){
       items = '<div class="empty-state" style="padding:8px 0;">Sin productos en esta sección</div>';
@@ -1011,22 +1011,22 @@ function renderMenuTab(filtro=''){
         items += '<div class="menu-item"><div style="flex:1;min-width:0;"><div class="menu-item-name">'+p.nombre+'</div><div class="menu-item-desc">'+p.desc+'</div><div class="menu-item-price">'+fmt(p.precio)+'</div>'+acciones+'</div></div>';
       });
     }
-
+ 
     card.innerHTML = header + items;
     container.appendChild(card);
   });
-
+ 
   // Eventos
   container.querySelectorAll('.edit-btn[data-id]').forEach(btn=>btn.addEventListener('click',()=>abrirEditar(parseInt(btn.dataset.id))));
   container.querySelectorAll('.badge[data-id]').forEach(badge=>badge.addEventListener('click',()=>toggleProducto(parseInt(badge.dataset.id))));
   container.querySelectorAll('.edit-btn[data-seccion-id]').forEach(btn=>btn.addEventListener('click',()=>abrirEditarSeccion(parseInt(btn.dataset.seccionId))));
 }
-
+ 
 function filtrarMenu(){
   const q = document.getElementById('menu-search').value;
   renderMenuTab(q);
 }
-
+ 
 // ─── SECCIONES ───────────────────────────────────────
 window.guardarSeccion = async function(){
   const nombre = document.getElementById('seccion-nombre').value.trim();
@@ -1049,7 +1049,7 @@ window.guardarSeccion = async function(){
     document.getElementById('seccion-edit-id').value='';
   } catch(e){ notif('❌ Error al guardar sección'); }
 };
-
+ 
 window.eliminarSeccion = async function(){
   const editId = document.getElementById('seccion-edit-id').value;
   const s = secciones.find(x=>x.id==editId);
@@ -1064,7 +1064,7 @@ window.eliminarSeccion = async function(){
     notif('🗑 Sección eliminada');
   } catch(e){ notif('❌ Error al eliminar sección'); }
 };
-
+ 
 function abrirEditarSeccion(id){
   const s = secciones.find(x=>x.id===id); if(!s) return;
   document.getElementById('seccion-edit-id').value=id;
@@ -1074,14 +1074,14 @@ function abrirEditarSeccion(id){
   document.getElementById('btn-eliminar-seccion').style.display='block';
   openModal('modal-seccion');
 }
-
+ 
 async function toggleProducto(id){
   if(currentRole!=='Abuela'){notif('🔒 Solo la Abuela puede hacer esto');return;}
   const p=menu.find(x=>x.id===id); if(!p||!p._fbId) return;
   try { await updateDoc(doc(db,'menu',p._fbId),{activo:!p.activo}); notif(p.activo?'⛔ Producto desactivado':'✅ Producto activado'); }
   catch(e){ notif('❌ Error al actualizar'); }
 }
-
+ 
 function abrirEditar(id){
   if(currentRole!=='Abuela'){notif('🔒 Solo la Abuela puede hacer esto');return;}
   const p=menu.find(x=>x.id===id); if(!p) return;
@@ -1127,7 +1127,7 @@ window.agregarProducto = async function(){
     notif('🍔 Producto agregado al menú');
   } catch(e){ notif('❌ Error al agregar'); }
 };
-
+ 
 // ─── CAJA ────────────────────────────────────────────
 function renderComprasUI(){
   const cl=document.getElementById('compras-list'); cl.innerHTML='';
@@ -1142,7 +1142,7 @@ function renderComprasUI(){
     cl.appendChild(d);
   });
 }
-
+ 
 window.editarCompra = async function(i){
   const c = comprasHoy[i];
   const nuevoDesc = prompt('Descripción de la compra:', c.desc);
@@ -1155,7 +1155,7 @@ window.editarCompra = async function(i){
   await saveCaja(); renderComprasUI(); updateCajaResumen();
   notif('💾 Compra actualizada');
 };
-
+ 
 window.eliminarCompra = async function(i){
   if(!confirm('¿Eliminar "'+comprasHoy[i].desc+'"?')) return;
   comprasTotal -= comprasHoy[i].val;
@@ -1164,7 +1164,7 @@ window.eliminarCompra = async function(i){
   notif('🗑 Compra eliminada');
 };
 async function saveCaja(){ try{ await fbSet('config/caja',{base:baseActual,comprasTotal,comprasHoy}); setSyncDot('ok'); }catch(e){ setSyncDot('err'); } }
-
+ 
 window.actualizarBase = async function(){
   const v=parseInt(document.getElementById('base-input').value)||0;
   baseActual=v;
@@ -1197,7 +1197,7 @@ function updateCajaResumen(){
   document.getElementById('res-fiado-caja').textContent=fmt(fiadoTotal);
   document.getElementById('res-final').textContent=fmt(cajaFinal);
 }
-
+ 
 function renderEmpleadosUI(){
   const el = document.getElementById('empleados-list');
   if(!el) return;
@@ -1216,7 +1216,7 @@ function renderEmpleadosUI(){
     el.appendChild(d);
   });
 }
-
+ 
 window.agregarEmpleado = function(){
   const nombre=document.getElementById('emp-nombre').value.trim();
   const valor=parseInt(document.getElementById('emp-valor').value)||0;
@@ -1227,13 +1227,13 @@ window.agregarEmpleado = function(){
   renderEmpleadosUI(); updateCajaResumen();
   notif('👷 Empleado agregado');
 };
-
+ 
 window.togglePagoEmpleado = function(i){
   empleados[i].pagado = !empleados[i].pagado;
   renderEmpleadosUI(); updateCajaResumen();
   notif(empleados[i].pagado?'✅ Pago registrado':'↩️ Pago desmarcado');
 };
-
+ 
 window.editarEmpleado = function(i){
   const e=empleados[i];
   const nuevoNombre=prompt('Nombre del empleado:',e.nombre);
@@ -1245,7 +1245,7 @@ window.editarEmpleado = function(i){
   renderEmpleadosUI(); updateCajaResumen();
   notif('💾 Empleado actualizado');
 };
-
+ 
 window.eliminarEmpleado = function(i){
   if(!confirm('¿Eliminar a '+empleados[i].nombre+'?')) return;
   empleados.splice(i,1);
@@ -1266,20 +1266,20 @@ window.cerrarDia = async function(){
     notif('📅 Día cerrado y guardado en historial');
   } catch(e){ notif('❌ Error al cerrar el día'); }
 };
-
+ 
 // ─── HISTORIAL ───────────────────────────────────────
 async function updateHistorial(){
   const histSnap=await getDocs(collection(db,'historial'));
   historial=histSnap.docs.map(d=>({...d.data(),_fbId:d.id}));
   historial.sort((a,b)=>b.fecha.localeCompare(a.fecha));
-
+ 
   let semana=0,mes=0;
   const hoy=new Date();
   historial.forEach(d=>{ const fd=new Date(d.fecha); const diff=(hoy-fd)/(1000*60*60*24); if(diff<=7)semana+=d.total; if(fd.getMonth()===hoy.getMonth()&&fd.getFullYear()===hoy.getFullYear())mes+=d.total; });
   ventas.forEach(v=>{ semana+=v.total; mes+=v.total; });
   document.getElementById('hist-semana').textContent=fmt(semana);
   document.getElementById('hist-mes').textContent=fmt(mes);
-
+ 
   // ── Gráfica semanal ──
   const gw = document.getElementById('grafica-semana');
   // Construir los últimos 7 días
@@ -1305,7 +1305,7 @@ async function updateHistorial(){
       <div style="font-size:11px;color:${esHoy?'var(--rojo)':'var(--muted)'};font-weight:${esHoy?'700':'400'};">${d.label}</div>
     </div>`;
   }).join('');
-
+ 
   // ── Barras de método de pago ──
   let tot=0,ef=0,nq=0,fi=0;
   ventas.forEach(v=>{ tot+=v.total; if(v.pago==='efectivo')ef+=v.total; else if(v.pago==='nequi')nq+=v.total; else fi+=v.total; });
@@ -1322,37 +1322,37 @@ async function updateHistorial(){
   hl.innerHTML='';
   historial.forEach(d=>{ const row=document.createElement('div'); row.className='sale-row'; row.innerHTML='<div><div style="font-size:14px;font-weight:600;">'+d.fecha+'</div><div style="font-size:12px;color:var(--muted);">'+d.pedidos+' pedidos · Compras: '+fmt(d.compras)+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:700;color:var(--green);">'+fmt(d.total)+'</div><div style="font-size:11px;color:var(--muted);">Ef:'+fmt(d.efectivo)+' | Nq:'+fmt(d.nequi)+'</div></div>'; hl.appendChild(row); });
 }
-
+ 
 // ─── EXPORTAR WHATSAPP ───────────────────────────────
 window.exportarCSV = function(){
   // mantener por compatibilidad — redirige a WhatsApp ventas
   exportarWhatsAppVentas();
 };
-
+ 
 window.exportarWhatsAppCaja = function(){
   let venTotal=0, fiadoTotal=0;
   ventas.forEach(v=>{ if(v.pago==='fiado') fiadoTotal+=v.total; else venTotal+=v.total; });
   const pagoEmpleados = empleados.filter(e=>e.pagado).reduce((s,e)=>s+e.valor,0);
   const baseDisponible = baseActual - comprasTotal - pagoEmpleados;
   const cajaFinal = baseDisponible + venTotal;
-
+ 
   let msg = '🔥 *Que Ricuras — Cierre de Caja*\n';
   msg += '📅 '+fechaHoy()+'\n';
   msg += '─────────────────────\n';
   msg += '💰 *Base inicial:* '+fmt(baseActual)+'\n';
-
+ 
   if(comprasHoy.length){
     msg += '\n🛒 *Compras de la noche:*\n';
     comprasHoy.forEach(c=>{ msg += '  • '+c.desc+': −'+fmt(c.val)+'\n'; });
     msg += '  *Total compras:* −'+fmt(comprasTotal)+'\n';
   }
-
+ 
   if(empleados.length){
     msg += '\n👷 *Pago empleados:*\n';
     empleados.forEach(e=>{ msg += '  • '+e.nombre+': −'+fmt(e.valor)+(e.pagado?' ✅':' ⏳')+'\n'; });
     msg += '  *Total pagado:* −'+fmt(pagoEmpleados)+'\n';
   }
-
+ 
   msg += '\n📊 *Base disponible:* '+fmt(baseDisponible)+'\n';
   msg += '\n📦 *Ventas del día:*\n';
   msg += '  💵 Efectivo: '+fmt(ventas.filter(v=>v.pago==='efectivo').reduce((s,v)=>s+v.total,0))+'\n';
@@ -1362,12 +1362,12 @@ window.exportarWhatsAppCaja = function(){
   msg += '\n─────────────────────\n';
   msg += '✅ *Caja final estimada: '+fmt(cajaFinal)+'*\n';
   msg += '_(Sin contar fiados pendientes)_';
-
+ 
   const url = 'https://wa.me/?text='+encodeURIComponent(msg);
   window.open(url, '_blank');
   notif('📲 Abriendo WhatsApp...');
 };
-
+ 
 window.exportarWhatsAppVentas = function(){
   if(!ventas.length){notif('❌ No hay ventas para exportar');return;}
   let msg = '🔥 *Que Ricuras — Ventas del día*\n';
@@ -1392,7 +1392,7 @@ window.exportarWhatsAppVentas = function(){
   window.open(url, '_blank');
   notif('📲 Abriendo WhatsApp...');
 };
-
+ 
 window.exportarHistorial = function(){
   if(!historial.length){notif('❌ No hay historial para exportar');return;}
   let msg='🔥 *Que Ricuras — Historial*\n📅 Generado: '+fechaHoy()+'\n─────────────────────\n';
@@ -1410,7 +1410,7 @@ window.borrarHistorial = async function(){
   for(const d of historial) if(d._fbId) await deleteDoc(doc(db,'historial',d._fbId));
   historial=[]; updateHistorial(); notif('🗑 Historial borrado');
 };
-
+ 
 // ─── AJUSTES / PINs ──────────────────────────────────
 window.cambiarPin = async function(rol){
   if(rol==='Abuela'){
@@ -1434,12 +1434,12 @@ window.cambiarPin = async function(rol){
     notif('✅ PIN actualizado en todos los dispositivos');
   } catch(e){ notif('❌ Error al guardar PIN'); }
 };
-
+ 
 // ─── MODALES ─────────────────────────────────────────
 window.openModal = function(id){document.getElementById(id).classList.add('open');};
 window.closeModal = function(id){document.getElementById(id).classList.remove('open');};
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
-
+ 
 // ─── BÚSQUEDA ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
   const pedidoSearch = document.getElementById('pedido-search');
@@ -1453,7 +1453,7 @@ document.addEventListener('DOMContentLoaded', function(){
     menuSearch.addEventListener('keyup', function(){ renderMenuTab(this.value); });
   }
 });
-
+ 
 // ─── INICIO ──────────────────────────────────────────
 (async()=>{
   document.getElementById('loading-view').style.display='flex';
